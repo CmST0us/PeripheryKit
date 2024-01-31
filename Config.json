@@ -1,0 +1,4 @@
+{
+  "sysroot-path": "/Library/Developer/Runtimes/swift-5.9-runtime-arm-none-linux-gnueabihf/toolchain/arm-none-linux-gnueabihf/libc",
+  "c-periphery-version": "2.4.2"
+}
