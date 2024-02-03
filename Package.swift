@@ -5,6 +5,23 @@ import PackageDescription
 
 let sysrootHeaderSearchPath = "../../.build/plugins/outputs/peripherykit/Cperiphery/CopySysrootHeader/include"
 
+enum CDEVVersion {
+    case none
+    case v1
+    case v2
+}
+let versionOfCDEV: CDEVVersion = .v1
+var defineOfCDEV: String {
+    switch versionOfCDEV {
+    case .none:
+        return ""
+    case .v1:
+        return "PERIPHERY_GPIO_CDEV_SUPPORT=1"
+    case .v2:
+        return "PERIPHERY_GPIO_CDEV_SUPPORT=2"
+    }
+}
+
 let package = Package(
     name: "PeripheryKit",
     products: [
@@ -20,7 +37,8 @@ let package = Package(
             name: "Cperiphery",
             dependencies: ["CopySysrootHeader"],
             cSettings: [
-                .headerSearchPath(sysrootHeaderSearchPath)
+                .headerSearchPath(sysrootHeaderSearchPath),
+                .define(defineOfCDEV)
             ]),
         
         .target(

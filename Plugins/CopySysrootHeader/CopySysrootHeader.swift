@@ -10,8 +10,9 @@ struct CopySysrootHeader: BuildToolPlugin {
         let sysrootPath = Path(config["sysroot-path"]!)
         let srcCopyPath = sysrootPath.appending(subpath: "usr/include")
 
-        try FileManager.default.createDirectory(atPath: outputDir.string, withIntermediateDirectories: true)
-
+        if FileManager.default.fileExists(atPath: outputDir.appending(subpath: "include").string) {
+            try! FileManager.default.removeItem(atPath: outputDir.appending(subpath: "include").string)
+        }
         return [
             .prebuildCommand(
                 displayName: "CopySysrootHeader",

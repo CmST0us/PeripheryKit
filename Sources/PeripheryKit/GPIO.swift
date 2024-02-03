@@ -17,6 +17,7 @@ public class GPIO {
     
     public enum Pin {
         case sysfs(Int)
+        case cdev(String, Int)
     }
     
     public enum Value {
@@ -106,6 +107,10 @@ extension GPIO {
         switch pin {
         case .sysfs(let line):
             return gpio_open_sysfs(gpioHandle, UInt32(line), direction.rawValue) == 0
+        case .cdev(let path, let line):
+            return path.cString(using: .utf8)?.withUnsafeBufferPointer { ptr in
+                return gpio_open(gpioHandle, ptr.baseAddress, UInt32(line), direction.rawValue) == 0
+            } ?? false
         }
     }
     
