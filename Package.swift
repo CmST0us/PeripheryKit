@@ -49,7 +49,8 @@ let package = Package(
             dependencies: ["PeripheryKit"]),
         
         .executableTarget(name: "pio",
-                          dependencies: ["PeripheryKit"]),
+                          dependencies: [
+                            "PeripheryKit"]),
     
         .plugin(
             name: "CopySysrootHeader",

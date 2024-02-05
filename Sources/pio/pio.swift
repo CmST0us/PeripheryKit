@@ -1,20 +1,75 @@
 import Foundation
 import PeripheryKit
+import Cperiphery
 
 @main
 struct Pio {
+    
+    enum LED: CaseIterable {
+        case red
+        case yellow
+        case green
+        case blue
+        
+        var pin: GPIO.Pin {
+            switch self {
+            case .red:
+                return .cdev("/dev/gpiochip3", 1)
+            case .yellow:
+                return .cdev("/dev/gpiochip3", 2)
+            case .green:
+                return .cdev("/dev/gpiochip3", 3)
+            case .blue:
+                return .cdev("/dev/gpiochip3", 8)
+            }
+        }
+    }
+    
+    enum Button: CaseIterable {
+        case sw1
+        case sw2
+        case sw3
+        case sw4
+        
+        var pin: GPIO.Pin {
+            switch self {
+            case .sw1:
+                return .cdev("/dev/gpiochip3", 18)
+            case .sw2:
+                return .cdev("/dev/gpiochip3", 9)
+            case .sw3:
+                return .cdev("/dev/gpiochip3", 10)
+            case .sw4:
+                return .cdev("/dev/gpiochip0", 15)
+            }
+        }
+    }
+     
     static func main() {
         print("pio start")
-        let gpio = GPIO(pin: .sysfs(906))
-        gpio.open()
         
-        for _ in 0..<10 {
-            gpio.write(.digital(.high))
-            Thread.sleep(forTimeInterval: 1)
-            gpio.write(.digital(.low))
+        let eventDispatcher = GPIOEventDispatcher()
+        
+        let leds = LED.allCases.map { led in
+            PeripheryKit.LED(pin: led.pin)
+        }
+
+        let buttons = Button.allCases.enumerated().map { index, button in
+            return PeripheryKit.Button(pin: button.pin, tapDownEdge: .falling) { event in
+                print("[Button] \(button): \(event)")
+                if event == .tapDown {
+                    leds[index].toggle()
+                }
+            }
+        }
+        buttons.forEach {
+            $0.addToDispatcher(eventDispatcher)
         }
         
-        gpio.close()
+        eventDispatcher.start()
+        
+        RunLoop.main.run()
+        
     }
 }
 
