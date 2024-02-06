@@ -44,6 +44,65 @@ struct Pio {
             }
         }
     }
+    
+    struct Music {
+        static let twinkle: [(note: Buzzer.Note, value: Int)] = [
+            (.C4, 4),
+            (.C4, 4),
+            (.G4, 4),
+            (.G4, 4),
+
+            (.A4, 4),
+            (.A4, 4),
+            (.G4, 2),
+
+            (.F4, 4),
+            (.F4, 4),
+            (.E4, 4),
+            (.E4, 4),
+
+
+            (.D4, 4),
+            (.D4, 4),
+            (.C4, 2),
+
+            (.G4, 4),
+            (.G4, 4),
+            (.F4, 4),
+            (.F4, 4),
+
+            (.E4, 4),
+            (.E4, 4),
+            (.D4, 2),
+
+            (.G4, 4),
+            (.G4, 4),
+            (.F4, 4),
+            (.F4, 4),
+
+            (.E4, 4),
+            (.E4, 4),
+            (.D4, 2),
+
+            (.C4, 4),
+            (.C4, 4),
+            (.G4, 4),
+            (.G4, 4),
+
+            (.A4, 4),
+            (.A4, 4),
+            (.G4, 2),
+
+            (.F4, 4),
+            (.F4, 4),
+            (.E4, 4),
+            (.E4, 4),
+
+            (.D4, 4),
+            (.D4, 4),
+            (.C4, 2)
+        ]
+    }
      
     static func main() {
         print("pio start")
@@ -88,6 +147,24 @@ struct Pio {
         }
         buttons.forEach {
             $0.addToDispatcher(eventDispatcher)
+        }
+        
+        var halfStep: Int = 0
+        var bpm: Float = 60
+        let buzzer = Buzzer(chip: .gpiochip(.cdev("/dev/gpiochip3", 6)), bpm: 100)
+        
+        DispatchQueue.global().async {
+            for _ in 0..<4 {
+                buzzer.play(track: Music.twinkle)
+
+                bpm += 40
+                buzzer.bpm = bpm
+
+                halfStep += 12
+                buzzer.fixedHalfStep = halfStep
+                
+                Thread.sleep(forTimeInterval: 1)
+            }
         }
         
         eventDispatcher.start()
