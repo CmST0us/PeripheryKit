@@ -106,9 +106,9 @@ struct Pio {
      
     static func main() {
         print("pio start")
-        
+#if true
         let eventDispatcher = GPIOEventDispatcher()
-        
+        eventDispatcher.start()
         let leds = LED.allCases.map { led in
             PeripheryKit.LED(pin: led.pin)
         }
@@ -148,7 +148,9 @@ struct Pio {
         buttons.forEach {
             $0.addToDispatcher(eventDispatcher)
         }
+#endif
         
+#if true // Disable buzzer
         var halfStep: Int = 0
         var bpm: Float = 60
         let buzzer = Buzzer(chip: .gpiochip(.cdev("/dev/gpiochip3", 6)), bpm: 100)
@@ -166,12 +168,8 @@ struct Pio {
                 Thread.sleep(forTimeInterval: 1)
             }
         }
-        
-        eventDispatcher.start()
-
-        
+#endif
         RunLoop.main.run()
-        
     }
 }
 

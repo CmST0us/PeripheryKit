@@ -45,9 +45,10 @@ public class PWMModulation {
     
     public func open() {
         isRunning = true
+
         workingQueue.async { [weak self] in
             self?.doModulation()
-        }
+        }        
     }
     
     private func doModulation() {
@@ -55,14 +56,14 @@ public class PWMModulation {
             return
         }
         
-        let cycleTime = period
-        let highTime = cycleTime * dutyCycle
-        let lowTime = cycleTime * (1 - dutyCycle)
-        polarity == .normal ? onHigh() : onLow()
-        Thread.sleep(forTimeInterval: highTime)
-        polarity == .normal ? onLow() : onHigh()
-        Thread.sleep(forTimeInterval: lowTime)
-
+        let cycleTime = self.period
+        let highTime = cycleTime * self.dutyCycle
+        let lowTime = cycleTime * (1 - self.dutyCycle)
+        
+        self.polarity == .normal ? self.onHigh() : self.onLow()
+        Delay.nanosecond(Int(highTime * 1_000_000_000))
+        self.polarity == .normal ? self.onLow() : self.onHigh()
+        Delay.nanosecond(Int(lowTime * 1_000_000_000))
         workingQueue.async { [weak self] in
             self?.doModulation()
         }

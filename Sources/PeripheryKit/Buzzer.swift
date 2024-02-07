@@ -248,7 +248,7 @@ public class Buzzer {
         pwm.period = TimeInterval(period) / 1_000_000.0
         pwm.dutyCycle = 0.5
         
-        Thread.sleep(forTimeInterval: TimeInterval(duration) / 1000)
+        Delay.nanosecond(Int(duration * 1_000_000))
         if suspend {
             pwm.dutyCycle = 0
         }
@@ -256,7 +256,7 @@ public class Buzzer {
 
     private func rest(_ duration: Float) {
         pwm.dutyCycle = 0
-        Thread.sleep(forTimeInterval: TimeInterval(duration) / 1000)
+        Delay.nanosecond(Int(duration * 1_000_000))
     }
     
     deinit {
