@@ -174,9 +174,10 @@ public class I2CTransfer {
     }
     
     public func writeUInt8(register: RegisterAddress, value: UInt8) {
+        var writeData = register.data
+        writeData.append(value)
         let request = [
-            I2C.Request(address: address, flags: .NONE, data: register.data),
-            I2C.Request(address: address, flags: .NONE, data: Data([value]))
+            I2C.Request(address: address, flags: .NONE, data: writeData)
         ]
         let _ = i2c.tranfer(requests: request)
     }
