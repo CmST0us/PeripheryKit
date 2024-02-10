@@ -169,6 +169,10 @@ struct Pio {
             }
         }
 #endif
+        
+        let i2c = I2CTransfer(chip: .i2c("/dev/i2c-2"), address: 0x48)
+        let value = i2c.readUInt8(register: .byte(0x00))
+        print("response: \(String(format: "%02x", value!))")
         RunLoop.main.run()
     }
 }
