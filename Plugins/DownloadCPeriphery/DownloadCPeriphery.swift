@@ -5,7 +5,7 @@ import Foundation
 struct DownloadCPeriphery: CommandPlugin {
     func performCommand(context: PackagePlugin.PluginContext, arguments: [String]) async throws {
         let configFile = context.package.directory.appending(subpath: "Config.json")
-        let config = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL.init(filePath: configFile.string))) as! [String: String]
+        let config = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: configFile.string))) as! [String: String]
         let version = config["c-periphery-version"]!
         let outputDir = context.pluginWorkDirectory
         let cperipheryDir = try! context.package.targets(named: ["Cperiphery"]).first!.directory
