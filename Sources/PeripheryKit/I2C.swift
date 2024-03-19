@@ -98,12 +98,13 @@ public class I2C {
             i2c_msg.flags = request.flags.rawValue
             i2c_msg.len = UInt16(request.data.count)
             i2c_msg.buf = UnsafeMutablePointer<UInt8>.allocate(capacity: request.data.count)
-            let ptr = request.data.withUnsafeBytes { ptr in
+            request.data.withUnsafeBytes { ptr in
                 ptr.withMemoryRebound(to: UInt8.self) { buffer in
-                    return buffer.baseAddress!
+                    if let bufferBaseAddress = buffer.baseAddress {
+                        memcpy(i2c_msg.buf, bufferBaseAddress, request.data.count)
+                    }
                 }
             }
-            memcpy(i2c_msg.buf, ptr, request.data.count)
             
             i2c_msgs.append(i2c_msg)
         }
@@ -138,14 +139,17 @@ public class I2C {
 public class I2CTransfer {
     public enum RegisterAddress {
         case byte(UInt8)
-        case word(UInt16)
+        case lsb_msb(UInt16)
+        case msb_lsb(UInt16)
         
         public var data: Data {
             switch self {
             case .byte(let uInt8):
                 return Data([uInt8])
-            case .word(let uInt16):
+            case .msb_lsb(let uInt16):
                 return Data([UInt8(uInt16 >> 8), UInt8(uInt16 & 0xFF)])
+            case .lsb_msb(let uInt16):
+                return Data([UInt8(uInt16 & 0xFF), UInt8(uInt16 >> 8)])
             }
         }
     }
@@ -181,50 +185,60 @@ public class I2CTransfer {
         ]
         let _ = i2c.tranfer(requests: request)
     }
-    
-    #if false
-    public func readInt8(register: RegisterAddress) -> Int8 {
-        
+
+    public func readLittleEndianUInt16(register: RegisterAddress) -> UInt16? {
+        let request = [
+            I2C.Request(address: address, flags: .NONE, data: register.data),
+            I2C.Request(address: address, flags: .RD, data: Data([0xff, 0xff]))
+        ]
+        let response = i2c.tranfer(requests: request)
+        return response[1].data.toLittleEndianUInt16()
     }
     
-    public func writeInt8(register: RegisterAddress, value: UInt8) {
-        
+    public func readBigEndianUInt16(register: RegisterAddress) -> UInt16? {
+        let request = [
+            I2C.Request(address: address, flags: .NONE, data: register.data),
+            I2C.Request(address: address, flags: .RD, data: Data([0xff, 0xff]))
+        ]
+        let response = i2c.tranfer(requests: request)
+        return response[1].data.toBigEndianUInt16()
     }
     
-    
-    public func readUInt16(register: RegisterAddress) -> UInt16 {
-        
-    }
-    
+
     public func writeUInt16(register: RegisterAddress, value: UInt16) {
-        
+        var writeData = register.data
+        writeData.append(contentsOf: value.toData())
+        let request = [
+            I2C.Request(address: address, flags: .NONE, data: writeData)
+        ]
+        let _ = i2c.tranfer(requests: request)
     }
     
-    public func readInt16(register: RegisterAddress) -> Int16 {
-        
+    public func readLittleEndianUInt32(register: RegisterAddress) -> UInt32? {
+        let request = [
+            I2C.Request(address: address, flags: .NONE, data: register.data),
+            I2C.Request(address: address, flags: .RD, data: Data([0xff, 0xff, 0xff, 0xff]))
+        ]
+        let response = i2c.tranfer(requests: request)
+        return response[1].data.toLittleEndianUInt32()
     }
     
-    public func writeInt16(register: RegisterAddress, value: UInt16) {
-        
-    }
-    
-    
-    public func readUInt32(register: RegisterAddress) -> UInt32 {
-        
+    public func readBigEndianUInt32(register: RegisterAddress) -> UInt32? {
+        let request = [
+            I2C.Request(address: address, flags: .NONE, data: register.data),
+            I2C.Request(address: address, flags: .RD, data: Data([0xff, 0xff, 0xff, 0xff]))
+        ]
+        let response = i2c.tranfer(requests: request)
+        return response[1].data.toBigEndianUInt32()
     }
     
     public func writeUInt32(register: RegisterAddress, value: UInt32) {
-        
+        var writeData = register.data
+        writeData.append(contentsOf: value.toData())
+        let request = [
+            I2C.Request(address: address, flags: .NONE, data: writeData)
+        ]
+        let _ = i2c.tranfer(requests: request)
     }
-    
-    public func readInt32(register: RegisterAddress) -> Int32 {
-        
-    }
-    
-    public func writeInt32(register: RegisterAddress, value: UInt32) {
-        
-    }
-    
-    #endif
 }
 
