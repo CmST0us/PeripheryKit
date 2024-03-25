@@ -33,28 +33,28 @@ extension Data {
         return value
     }
 
-    func toLittleEndianUInt16() -> UInt16? {
+    public func toLittleEndianUInt16() -> UInt16? {
         guard let value = toUInt16() else {
             return nil
         }
         return UInt16(littleEndian: value)
     }
 
-    func toBigEndianUInt16() -> UInt16? {
+    public func toBigEndianUInt16() -> UInt16? {
         guard let value = toUInt16() else {
             return nil
         }
         return UInt16(bigEndian: value)
     }
 
-    func toLittleEndianUInt32() -> UInt32? {
+    public func toLittleEndianUInt32() -> UInt32? {
         guard let value = toUInt32() else {
             return nil
         }
         return UInt32(littleEndian: value)
     }
 
-    func toBigEndianUInt32() -> UInt32? {
+    public func toBigEndianUInt32() -> UInt32? {
         guard let value = toUInt32() else {
             return nil
         }

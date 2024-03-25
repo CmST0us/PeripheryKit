@@ -150,7 +150,7 @@ struct Pio {
         }
 #endif
         
-#if false // Disable buzzer
+#if true
         var halfStep: Int = 0
         var bpm: Float = 60
         let buzzer = Buzzer(chip: .gpiochip(.cdev("/dev/gpiochip3", 6)), bpm: 100)
@@ -170,7 +170,7 @@ struct Pio {
         }
 #endif
         
-#if false // I2C AD/DA
+#if true
         let i2c = I2CTransfer(chip: .i2c("/dev/i2c-2"), address: 0x48)
         while true {
             let value = i2c.readUInt8(register: .byte(0x41))!
