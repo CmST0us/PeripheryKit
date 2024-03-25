@@ -3,7 +3,7 @@
 
 import PackageDescription
 
-let sysrootHeaderSearchPath = "../../.build/plugins/outputs/peripherykit/Cperiphery/CopySysrootHeader/include"
+let sysrootHeaderSearchPath = "../../.build/plugins/outputs/peripherykit/Cperiphery/PeripheryKitCopySysrootHeader/include"
 
 enum CDEVVersion {
     case none
@@ -35,7 +35,7 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "Cperiphery",
-            dependencies: ["CopySysrootHeader"],
+            dependencies: ["PeripheryKitCopySysrootHeader"],
             cSettings: [
                 .headerSearchPath(sysrootHeaderSearchPath),
                 .define(defineOfCDEV)
@@ -53,7 +53,7 @@ let package = Package(
                             "PeripheryKit"]),
     
         .plugin(
-            name: "CopySysrootHeader",
+            name: "PeripheryKitCopySysrootHeader",
             capability: .buildTool()
         ),
         .plugin(name: "DownloadCPeriphery",
