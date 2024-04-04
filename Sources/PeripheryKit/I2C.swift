@@ -147,9 +147,9 @@ public class I2CTransfer {
             case .byte(let uInt8):
                 return Data([uInt8])
             case .msb_lsb(let uInt16):
-                return Data([UInt8(uInt16 >> 8), UInt8(uInt16 & 0xFF)])
-            case .lsb_msb(let uInt16):
                 return Data([UInt8(uInt16 & 0xFF), UInt8(uInt16 >> 8)])
+            case .lsb_msb(let uInt16):
+                return Data([UInt8(uInt16 >> 8), UInt8(uInt16 & 0xFF)])
             }
         }
     }
