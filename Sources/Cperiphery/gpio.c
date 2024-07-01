@@ -21,9 +21,6 @@
 #include "gpio.h"
 #include "gpio_internal.h"
 
-extern const struct gpio_ops gpio_cdev_ops;
-extern const struct gpio_ops gpio_sysfs_ops;
-
 gpio_t *gpio_new(void) {
     gpio_t *gpio = calloc(1, sizeof(gpio_t));
     if (gpio == NULL)

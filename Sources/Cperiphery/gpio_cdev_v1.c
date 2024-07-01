@@ -27,7 +27,7 @@
 
 #if PERIPHERY_GPIO_CDEV_SUPPORT == 1
 
-static int _gpio_cdev_reopen(gpio_t *gpio, gpio_direction_t direction, gpio_edge_t edge, gpio_bias_t bias, gpio_drive_t drive, bool inverted) {
+int _gpio_cdev_reopen(gpio_t *gpio, gpio_direction_t direction, gpio_edge_t edge, gpio_bias_t bias, gpio_drive_t drive, bool inverted) {
     uint32_t flags = 0;
 
     #ifdef GPIOHANDLE_REQUEST_BIAS_PULL_UP
@@ -123,7 +123,7 @@ static int _gpio_cdev_reopen(gpio_t *gpio, gpio_direction_t direction, gpio_edge
     return 0;
 }
 
-static int gpio_cdev_read(gpio_t *gpio, bool *value) {
+int gpio_cdev_read(gpio_t *gpio, bool *value) {
     struct gpiohandle_data data = {0};
 
     if (ioctl(gpio->u.cdev.line_fd, GPIOHANDLE_GET_LINE_VALUES_IOCTL, &data) < 0)
@@ -134,7 +134,7 @@ static int gpio_cdev_read(gpio_t *gpio, bool *value) {
     return 0;
 }
 
-static int gpio_cdev_write(gpio_t *gpio, bool value) {
+int gpio_cdev_write(gpio_t *gpio, bool value) {
     struct gpiohandle_data data = {0};
 
     if (gpio->u.cdev.direction != GPIO_DIR_OUT)
@@ -148,7 +148,7 @@ static int gpio_cdev_write(gpio_t *gpio, bool value) {
     return 0;
 }
 
-static int gpio_cdev_read_event(gpio_t *gpio, gpio_edge_t *edge, uint64_t *timestamp) {
+int gpio_cdev_read_event(gpio_t *gpio, gpio_edge_t *edge, uint64_t *timestamp) {
     struct gpioevent_data event_data = {0};
 
     if (gpio->u.cdev.direction != GPIO_DIR_IN)
@@ -168,7 +168,7 @@ static int gpio_cdev_read_event(gpio_t *gpio, gpio_edge_t *edge, uint64_t *times
     return 0;
 }
 
-static int gpio_cdev_poll(gpio_t *gpio, int timeout_ms) {
+int gpio_cdev_poll(gpio_t *gpio, int timeout_ms) {
     struct pollfd fds[1];
     int ret;
 
@@ -183,7 +183,7 @@ static int gpio_cdev_poll(gpio_t *gpio, int timeout_ms) {
     return ret > 0;
 }
 
-static int gpio_cdev_close(gpio_t *gpio) {
+int gpio_cdev_close(gpio_t *gpio) {
     /* Close line fd */
     if (gpio->u.cdev.line_fd >= 0) {
         if (close(gpio->u.cdev.line_fd) < 0)
@@ -206,32 +206,32 @@ static int gpio_cdev_close(gpio_t *gpio) {
     return 0;
 }
 
-static int gpio_cdev_get_direction(gpio_t *gpio, gpio_direction_t *direction) {
+int gpio_cdev_get_direction(gpio_t *gpio, gpio_direction_t *direction) {
     *direction = gpio->u.cdev.direction;
     return 0;
 }
 
-static int gpio_cdev_get_edge(gpio_t *gpio, gpio_edge_t *edge) {
+int gpio_cdev_get_edge(gpio_t *gpio, gpio_edge_t *edge) {
     *edge = gpio->u.cdev.edge;
     return 0;
 }
 
-static int gpio_cdev_get_bias(gpio_t *gpio, gpio_bias_t *bias) {
+int gpio_cdev_get_bias(gpio_t *gpio, gpio_bias_t *bias) {
     *bias = gpio->u.cdev.bias;
     return 0;
 }
 
-static int gpio_cdev_get_drive(gpio_t *gpio, gpio_drive_t *drive) {
+int gpio_cdev_get_drive(gpio_t *gpio, gpio_drive_t *drive) {
     *drive = gpio->u.cdev.drive;
     return 0;
 }
 
-static int gpio_cdev_get_inverted(gpio_t *gpio, bool *inverted) {
+int gpio_cdev_get_inverted(gpio_t *gpio, bool *inverted) {
     *inverted = gpio->u.cdev.inverted;
     return 0;
 }
 
-static int gpio_cdev_set_direction(gpio_t *gpio, gpio_direction_t direction) {
+int gpio_cdev_set_direction(gpio_t *gpio, gpio_direction_t direction) {
     if (direction != GPIO_DIR_IN && direction != GPIO_DIR_OUT && direction != GPIO_DIR_OUT_LOW && direction != GPIO_DIR_OUT_HIGH)
         return _gpio_error(gpio, GPIO_ERROR_ARG, 0, "Invalid GPIO direction (can be in, out, low, high)");
 
@@ -241,7 +241,7 @@ static int gpio_cdev_set_direction(gpio_t *gpio, gpio_direction_t direction) {
     return _gpio_cdev_reopen(gpio, direction, GPIO_EDGE_NONE, gpio->u.cdev.bias, gpio->u.cdev.drive, gpio->u.cdev.inverted);
 }
 
-static int gpio_cdev_set_edge(gpio_t *gpio, gpio_edge_t edge) {
+int gpio_cdev_set_edge(gpio_t *gpio, gpio_edge_t edge) {
     if (edge != GPIO_EDGE_NONE && edge != GPIO_EDGE_RISING && edge != GPIO_EDGE_FALLING && edge != GPIO_EDGE_BOTH)
         return _gpio_error(gpio, GPIO_ERROR_ARG, 0, "Invalid GPIO interrupt edge (can be none, rising, falling, both)");
 
@@ -254,7 +254,7 @@ static int gpio_cdev_set_edge(gpio_t *gpio, gpio_edge_t edge) {
     return _gpio_cdev_reopen(gpio, gpio->u.cdev.direction, edge, gpio->u.cdev.bias, gpio->u.cdev.drive, gpio->u.cdev.inverted);
 }
 
-static int gpio_cdev_set_bias(gpio_t *gpio, gpio_bias_t bias) {
+int gpio_cdev_set_bias(gpio_t *gpio, gpio_bias_t bias) {
     if (bias != GPIO_BIAS_DEFAULT && bias != GPIO_BIAS_PULL_UP && bias != GPIO_BIAS_PULL_DOWN && bias != GPIO_BIAS_DISABLE)
         return _gpio_error(gpio, GPIO_ERROR_ARG, 0, "Invalid GPIO line bias (can be default, pull_up, pull_down, disable)");
 
@@ -264,7 +264,7 @@ static int gpio_cdev_set_bias(gpio_t *gpio, gpio_bias_t bias) {
     return _gpio_cdev_reopen(gpio, gpio->u.cdev.direction, gpio->u.cdev.edge, bias, gpio->u.cdev.drive, gpio->u.cdev.inverted);
 }
 
-static int gpio_cdev_set_drive(gpio_t *gpio, gpio_drive_t drive) {
+int gpio_cdev_set_drive(gpio_t *gpio, gpio_drive_t drive) {
     if (drive != GPIO_DRIVE_DEFAULT && drive != GPIO_DRIVE_OPEN_DRAIN && drive != GPIO_DRIVE_OPEN_SOURCE)
         return _gpio_error(gpio, GPIO_ERROR_ARG, 0, "Invalid GPIO line drive (can be default, open_drain, open_source)");
 
@@ -277,22 +277,22 @@ static int gpio_cdev_set_drive(gpio_t *gpio, gpio_drive_t drive) {
     return _gpio_cdev_reopen(gpio, gpio->u.cdev.direction, gpio->u.cdev.edge, gpio->u.cdev.bias, drive, gpio->u.cdev.inverted);
 }
 
-static int gpio_cdev_set_inverted(gpio_t *gpio, bool inverted) {
+int gpio_cdev_set_inverted(gpio_t *gpio, bool inverted) {
     if (gpio->u.cdev.inverted == inverted)
         return 0;
 
     return _gpio_cdev_reopen(gpio, gpio->u.cdev.direction, gpio->u.cdev.edge, gpio->u.cdev.bias, gpio->u.cdev.drive, inverted);
 }
 
-static unsigned int gpio_cdev_line(gpio_t *gpio) {
+unsigned int gpio_cdev_line(gpio_t *gpio) {
     return gpio->u.cdev.line;
 }
 
-static int gpio_cdev_fd(gpio_t *gpio) {
+int gpio_cdev_fd(gpio_t *gpio) {
     return gpio->u.cdev.line_fd;
 }
 
-static int gpio_cdev_name(gpio_t *gpio, char *str, size_t len) {
+int gpio_cdev_name(gpio_t *gpio, char *str, size_t len) {
     struct gpioline_info line_info = {0};
 
     if (!len)
@@ -309,7 +309,7 @@ static int gpio_cdev_name(gpio_t *gpio, char *str, size_t len) {
     return 0;
 }
 
-static int gpio_cdev_label(gpio_t *gpio, char *str, size_t len) {
+int gpio_cdev_label(gpio_t *gpio, char *str, size_t len) {
     struct gpioline_info line_info = {0};
 
     if (!len)
@@ -326,11 +326,11 @@ static int gpio_cdev_label(gpio_t *gpio, char *str, size_t len) {
     return 0;
 }
 
-static int gpio_cdev_chip_fd(gpio_t *gpio) {
+int gpio_cdev_chip_fd(gpio_t *gpio) {
     return gpio->u.cdev.chip_fd;
 }
 
-static int gpio_cdev_chip_name(gpio_t *gpio, char *str, size_t len) {
+int gpio_cdev_chip_name(gpio_t *gpio, char *str, size_t len) {
     struct gpiochip_info chip_info = {0};
 
     if (!len)
@@ -345,7 +345,7 @@ static int gpio_cdev_chip_name(gpio_t *gpio, char *str, size_t len) {
     return 0;
 }
 
-static int gpio_cdev_chip_label(gpio_t *gpio, char *str, size_t len) {
+int gpio_cdev_chip_label(gpio_t *gpio, char *str, size_t len) {
     struct gpiochip_info chip_info = {0};
 
     if (!len)
@@ -360,7 +360,7 @@ static int gpio_cdev_chip_label(gpio_t *gpio, char *str, size_t len) {
     return 0;
 }
 
-static int gpio_cdev_tostring(gpio_t *gpio, char *str, size_t len) {
+int gpio_cdev_tostring(gpio_t *gpio, char *str, size_t len) {
     gpio_direction_t direction;
     const char *direction_str;
     gpio_edge_t edge;
@@ -437,32 +437,6 @@ static int gpio_cdev_tostring(gpio_t *gpio, char *str, size_t len) {
     return snprintf(str, len, "GPIO %u (name=\"%s\", label=\"%s\", line_fd=%d, chip_fd=%d, direction=%s, edge=%s, bias=%s, drive=%s, inverted=%s, chip_name=\"%s\", chip_label=\"%s\", type=cdev)",
                     gpio->u.cdev.line, line_name_str, line_label_str, gpio->u.cdev.line_fd, gpio->u.cdev.chip_fd, direction_str, edge_str, bias_str, drive_str, inverted_str, chip_name_str, chip_label_str);
 }
-
-const struct gpio_ops gpio_cdev_ops = {
-    .read = gpio_cdev_read,
-    .write = gpio_cdev_write,
-    .read_event = gpio_cdev_read_event,
-    .poll = gpio_cdev_poll,
-    .close = gpio_cdev_close,
-    .get_direction = gpio_cdev_get_direction,
-    .get_edge = gpio_cdev_get_edge,
-    .get_bias = gpio_cdev_get_bias,
-    .get_drive = gpio_cdev_get_drive,
-    .get_inverted = gpio_cdev_get_inverted,
-    .set_direction = gpio_cdev_set_direction,
-    .set_edge = gpio_cdev_set_edge,
-    .set_bias = gpio_cdev_set_bias,
-    .set_drive = gpio_cdev_set_drive,
-    .set_inverted = gpio_cdev_set_inverted,
-    .line = gpio_cdev_line,
-    .fd = gpio_cdev_fd,
-    .name = gpio_cdev_name,
-    .label = gpio_cdev_label,
-    .chip_fd = gpio_cdev_chip_fd,
-    .chip_name = gpio_cdev_chip_name,
-    .chip_label = gpio_cdev_chip_label,
-    .tostring = gpio_cdev_tostring,
-};
 
 int gpio_open_advanced(gpio_t *gpio, const char *path, unsigned int line, const gpio_config_t *config) {
     int ret, fd;

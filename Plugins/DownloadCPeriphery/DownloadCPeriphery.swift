@@ -4,15 +4,12 @@ import Foundation
 @main
 struct DownloadCPeriphery: CommandPlugin {
     func performCommand(context: PackagePlugin.PluginContext, arguments: [String]) async throws {
-        let configFile = context.package.directory.appending(subpath: "Config.json")
-        let config = try! JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: configFile.string))) as! [String: String]
-        let version = config["c-periphery-version"]!
         let outputDir = context.pluginWorkDirectory
         let cperipheryDir = try! context.package.targets(named: ["Cperiphery"]).first!.directory
-        
+        let version = arguments[0]
         do {
             try Process.run(URL(fileURLWithPath: "/usr/bin/curl"), arguments: [
-                "https://codeload.github.com/vsergeev/c-periphery/tar.gz/refs/tags/v\(version)",
+                "https://codeload.github.com/CmST0us/c-periphery/tar.gz/refs/tags/v\(version)",
                 "--compressed",
                 "-o",
                 "\(outputDir.appending(subpath: "c-periphery.tar.gz"))"
@@ -56,21 +53,6 @@ struct DownloadCPeriphery: CommandPlugin {
                         "\(cperipheryDir)/"
                     ]).waitUntilExit()
                 }
-            
-            // Patch File
-            var fileContent = try! String(contentsOfFile: "\(cperipheryDir)/include/gpio_internal.h")
-            
-            let stringToInsertAfterStdarg = "\n#include <stdio.h>"
-            let stringToInsertAfterStdio = "\n#include <string.h>"
-
-            if let rangeOfStdarg = fileContent.range(of: "#include <stdarg.h>") {
-                fileContent.insert(contentsOf: stringToInsertAfterStdarg, at: rangeOfStdarg.upperBound)
-            }
-            if let rangeOfStdio = fileContent.range(of: "#include <stdio.h>") {
-                fileContent.insert(contentsOf: stringToInsertAfterStdio, at: rangeOfStdio.upperBound)
-            }
-            
-            try! fileContent.write(toFile: "\(cperipheryDir)/include/gpio_internal.h", atomically: true, encoding: .utf8)
         } catch {
             throw error
         }

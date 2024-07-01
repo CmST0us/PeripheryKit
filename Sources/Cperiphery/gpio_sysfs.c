@@ -30,7 +30,7 @@
 /* Number of retries to check for successful GPIO exports */
 #define GPIO_SYSFS_OPEN_RETRIES    10
 
-static int gpio_sysfs_close(gpio_t *gpio) {
+int gpio_sysfs_close(gpio_t *gpio) {
     char buf[16];
     int len, fd;
 
@@ -65,7 +65,7 @@ static int gpio_sysfs_close(gpio_t *gpio) {
     return 0;
 }
 
-static int gpio_sysfs_read(gpio_t *gpio, bool *value) {
+int gpio_sysfs_read(gpio_t *gpio, bool *value) {
     char buf[2];
 
     /* Read fd */
@@ -86,7 +86,7 @@ static int gpio_sysfs_read(gpio_t *gpio, bool *value) {
     return 0;
 }
 
-static int gpio_sysfs_write(gpio_t *gpio, bool value) {
+int gpio_sysfs_write(gpio_t *gpio, bool value) {
     static const char *value_str[2] = {"0\n", "1\n"};
 
     /* Write fd */
@@ -100,13 +100,13 @@ static int gpio_sysfs_write(gpio_t *gpio, bool value) {
     return 0;
 }
 
-static int gpio_sysfs_read_event(gpio_t *gpio, gpio_edge_t *edge, uint64_t *timestamp) {
+int gpio_sysfs_read_event(gpio_t *gpio, gpio_edge_t *edge, uint64_t *timestamp) {
     (void)edge;
     (void)timestamp;
     return _gpio_error(gpio, GPIO_ERROR_UNSUPPORTED, 0, "GPIO of type sysfs does not support read event");
 }
 
-static int gpio_sysfs_poll(gpio_t *gpio, int timeout_ms) {
+int gpio_sysfs_poll(gpio_t *gpio, int timeout_ms) {
     struct pollfd fds[1];
     int ret;
 
@@ -129,7 +129,7 @@ static int gpio_sysfs_poll(gpio_t *gpio, int timeout_ms) {
     return 0;
 }
 
-static int gpio_sysfs_set_direction(gpio_t *gpio, gpio_direction_t direction) {
+int gpio_sysfs_set_direction(gpio_t *gpio, gpio_direction_t direction) {
     char gpio_path[P_PATH_MAX];
     const char *buf;
     int fd;
@@ -163,7 +163,7 @@ static int gpio_sysfs_set_direction(gpio_t *gpio, gpio_direction_t direction) {
     return 0;
 }
 
-static int gpio_sysfs_get_direction(gpio_t *gpio, gpio_direction_t *direction) {
+int gpio_sysfs_get_direction(gpio_t *gpio, gpio_direction_t *direction) {
     char gpio_path[P_PATH_MAX];
     char buf[8];
     int fd, ret;
@@ -195,7 +195,7 @@ static int gpio_sysfs_get_direction(gpio_t *gpio, gpio_direction_t *direction) {
     return 0;
 }
 
-static int gpio_sysfs_set_edge(gpio_t *gpio, gpio_edge_t edge) {
+int gpio_sysfs_set_edge(gpio_t *gpio, gpio_edge_t edge) {
     char gpio_path[P_PATH_MAX];
     const char *buf;
     int fd;
@@ -229,7 +229,7 @@ static int gpio_sysfs_set_edge(gpio_t *gpio, gpio_edge_t edge) {
     return 0;
 }
 
-static int gpio_sysfs_get_edge(gpio_t *gpio, gpio_edge_t *edge) {
+int gpio_sysfs_get_edge(gpio_t *gpio, gpio_edge_t *edge) {
     char gpio_path[P_PATH_MAX];
     char buf[16];
     int fd, ret;
@@ -265,27 +265,27 @@ static int gpio_sysfs_get_edge(gpio_t *gpio, gpio_edge_t *edge) {
     return 0;
 }
 
-static int gpio_sysfs_set_bias(gpio_t *gpio, gpio_bias_t bias) {
+int gpio_sysfs_set_bias(gpio_t *gpio, gpio_bias_t bias) {
     (void)bias;
     return _gpio_error(gpio, GPIO_ERROR_UNSUPPORTED, 0, "GPIO of type sysfs does not support line bias attribute");
 }
 
-static int gpio_sysfs_get_bias(gpio_t *gpio, gpio_bias_t *bias) {
+int gpio_sysfs_get_bias(gpio_t *gpio, gpio_bias_t *bias) {
     (void)bias;
     return _gpio_error(gpio, GPIO_ERROR_UNSUPPORTED, 0, "GPIO of type sysfs does not support line bias attribute");
 }
 
-static int gpio_sysfs_set_drive(gpio_t *gpio, gpio_drive_t drive) {
+int gpio_sysfs_set_drive(gpio_t *gpio, gpio_drive_t drive) {
     (void)drive;
     return _gpio_error(gpio, GPIO_ERROR_UNSUPPORTED, 0, "GPIO of type sysfs does not support line drive attribute");
 }
 
-static int gpio_sysfs_get_drive(gpio_t *gpio, gpio_drive_t *drive) {
+int gpio_sysfs_get_drive(gpio_t *gpio, gpio_drive_t *drive) {
     (void)drive;
     return _gpio_error(gpio, GPIO_ERROR_UNSUPPORTED, 0, "GPIO of type sysfs does not support line drive attribute");
 }
 
-static int gpio_sysfs_set_inverted(gpio_t *gpio, bool inverted) {
+int gpio_sysfs_set_inverted(gpio_t *gpio, bool inverted) {
     char gpio_path[P_PATH_MAX];
     static const char *inverted_str[2] = {"0\n", "1\n"};
     int fd;
@@ -308,7 +308,7 @@ static int gpio_sysfs_set_inverted(gpio_t *gpio, bool inverted) {
     return 0;
 }
 
-static int gpio_sysfs_get_inverted(gpio_t *gpio, bool *inverted) {
+int gpio_sysfs_get_inverted(gpio_t *gpio, bool *inverted) {
     char gpio_path[P_PATH_MAX];
     char buf[4];
     int fd, ret;
@@ -340,15 +340,15 @@ static int gpio_sysfs_get_inverted(gpio_t *gpio, bool *inverted) {
     return 0;
 }
 
-static unsigned int gpio_sysfs_line(gpio_t *gpio) {
+unsigned int gpio_sysfs_line(gpio_t *gpio) {
     return gpio->u.sysfs.line;
 }
 
-static int gpio_sysfs_fd(gpio_t *gpio) {
+int gpio_sysfs_fd(gpio_t *gpio) {
     return gpio->u.sysfs.line_fd;
 }
 
-static int gpio_sysfs_name(gpio_t *gpio, char *str, size_t len) {
+int gpio_sysfs_name(gpio_t *gpio, char *str, size_t len) {
     (void)gpio;
     if (len)
         str[0] = '\0';
@@ -356,7 +356,7 @@ static int gpio_sysfs_name(gpio_t *gpio, char *str, size_t len) {
     return 0;
 }
 
-static int gpio_sysfs_label(gpio_t *gpio, char *str, size_t len) {
+int gpio_sysfs_label(gpio_t *gpio, char *str, size_t len) {
     (void)gpio;
     if (len)
         str[0] = '\0';
@@ -364,11 +364,11 @@ static int gpio_sysfs_label(gpio_t *gpio, char *str, size_t len) {
     return 0;
 }
 
-static int gpio_sysfs_chip_fd(gpio_t *gpio) {
+int gpio_sysfs_chip_fd(gpio_t *gpio) {
     return _gpio_error(gpio, GPIO_ERROR_UNSUPPORTED, 0, "GPIO of type sysfs has no chip fd");
 }
 
-static int gpio_sysfs_chip_name(gpio_t *gpio, char *str, size_t len) {
+int gpio_sysfs_chip_name(gpio_t *gpio, char *str, size_t len) {
     int ret;
     char gpio_path[P_PATH_MAX];
     char gpiochip_path[P_PATH_MAX];
@@ -397,7 +397,7 @@ static int gpio_sysfs_chip_name(gpio_t *gpio, char *str, size_t len) {
     return 0;
 }
 
-static int gpio_sysfs_chip_label(gpio_t *gpio, char *str, size_t len) {
+int gpio_sysfs_chip_label(gpio_t *gpio, char *str, size_t len) {
     char gpio_path[P_PATH_MAX];
     char chip_name[32];
     int fd, ret;
@@ -428,7 +428,7 @@ static int gpio_sysfs_chip_label(gpio_t *gpio, char *str, size_t len) {
     return 0;
 }
 
-static int gpio_sysfs_tostring(gpio_t *gpio, char *str, size_t len) {
+int gpio_sysfs_tostring(gpio_t *gpio, char *str, size_t len) {
     gpio_direction_t direction;
     const char *direction_str;
     gpio_edge_t edge;
@@ -472,32 +472,6 @@ static int gpio_sysfs_tostring(gpio_t *gpio, char *str, size_t len) {
     return snprintf(str, len, "GPIO %u (fd=%d, direction=%s, edge=%s, inverted=%s, chip_name=\"%s\", chip_label=\"%s\", type=sysfs)",
                     gpio->u.sysfs.line, gpio->u.sysfs.line_fd, direction_str, edge_str, inverted_str, chip_name_str, chip_label_str);
 }
-
-const struct gpio_ops gpio_sysfs_ops = {
-    .read = gpio_sysfs_read,
-    .write = gpio_sysfs_write,
-    .read_event = gpio_sysfs_read_event,
-    .poll = gpio_sysfs_poll,
-    .close = gpio_sysfs_close,
-    .get_direction = gpio_sysfs_get_direction,
-    .get_edge = gpio_sysfs_get_edge,
-    .get_bias = gpio_sysfs_get_bias,
-    .get_drive = gpio_sysfs_get_drive,
-    .get_inverted = gpio_sysfs_get_inverted,
-    .set_direction = gpio_sysfs_set_direction,
-    .set_edge = gpio_sysfs_set_edge,
-    .set_bias = gpio_sysfs_set_bias,
-    .set_drive = gpio_sysfs_set_drive,
-    .set_inverted = gpio_sysfs_set_inverted,
-    .line = gpio_sysfs_line,
-    .fd = gpio_sysfs_fd,
-    .name = gpio_sysfs_name,
-    .label = gpio_sysfs_label,
-    .chip_fd = gpio_sysfs_chip_fd,
-    .chip_name = gpio_sysfs_chip_name,
-    .chip_label = gpio_sysfs_chip_label,
-    .tostring = gpio_sysfs_tostring,
-};
 
 int gpio_open_sysfs(gpio_t *gpio, unsigned int line, gpio_direction_t direction) {
     char gpio_path[P_PATH_MAX];

@@ -3,8 +3,6 @@
 
 import PackageDescription
 
-let sysrootHeaderSearchPath = "../../.build/plugins/outputs/peripherykit/Cperiphery/PeripheryKitCopySysrootHeader/include"
-
 enum CDEVVersion {
     case none
     case v1
@@ -27,17 +25,20 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "PeripheryKit",
+            name: "PeripheryKit_static",
+            type: .static,
             targets: ["PeripheryKit"]),
+        .library(
+            name: "PeripheryKit_shared",
+            type: .dynamic,
+            targets: ["PeripheryKit"])
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "Cperiphery",
-            dependencies: ["PeripheryKitCopySysrootHeader"],
             cSettings: [
-                .headerSearchPath(sysrootHeaderSearchPath),
                 .define(defineOfCDEV)
             ]),
         
@@ -52,10 +53,6 @@ let package = Package(
                           dependencies: [
                             "PeripheryKit"]),
     
-        .plugin(
-            name: "PeripheryKitCopySysrootHeader",
-            capability: .buildTool()
-        ),
         .plugin(name: "DownloadCPeriphery",
                 capability: .command(
                     intent: .custom(verb: "download-c-periphery", description: "Download c-periphery"),
